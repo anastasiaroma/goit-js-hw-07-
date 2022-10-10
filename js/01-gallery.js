@@ -1,50 +1,40 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
+const refs = {
+  gallery: document.querySelector('.gallery'),
+};
 
-console.log(galleryItems);
+const markup = galleryItems.reduce(
+  (acc, { preview, original, description }) =>
+    (acc += `<div class="gallery__item"><a class="gallery__link" href="${original}"><img class="gallery__image" src="${preview}" data-source="${original}" alt="${description}"/></a></div>`),
+  ``
+);
+refs.gallery.insertAdjacentHTML('beforeend', markup);
 
+refs.gallery.addEventListener('click', onItemHandler);
 
-const galleryRef = document.querySelector('.gallery');
-const imgMarkup = createGalleryItemMarkup(galleryItems);
+function onItemHandler(e) {
+  e.preventDefault();
 
-galleryRef.insertAdjacentHTML('beforeend', imgMarkup);
-
-
-
-function createGalleryItemMarkup(galleryItems) {
-    return galleryItems
-      .map(({ preview, original, description }) => {
-        return `
-          <div class="gallery__item">
-            <a class="gallery__link" href="${original}">
-              <img
-                class="gallery__image"
-                src="${preview}"
-                data-source="${original}"
-                alt="${description}"
-              />
-            </a>
-          </div>
-        `;
-      })
-      .join('');
+  if (e.target.classList.contains('gallery__image')) {
+    const pictureInModal = basicLightbox.create(
+      `
+      <img src = ${e.target.dataset.source}>
+  `,
+      {
+        onShow: () => {
+          document.addEventListener('keydown', closeModal);
+        },
+        onClose: () => {
+          document.removeEventListener('keydown', closeModal);
+        },
+      }
+    );
+    pictureInModal.show();
+    function closeModal(e) {
+      if (e.code === 'Escape') {
+        pictureInModal.close();
+      }
+    }
   }
-
-let modalWindow;
-
-galleryRef.addEventListener("click", smallImageClick);
-function smallImageClick(event) {
-  event.preventDefault();
-  if (!event.target.classList.contains('gallery__image')) return;
-   modalWindow = basicLightbox.create(`
-    <img src="${event.target.dataset.source}">
-`);
-modalWindow.show()
-
-galleryRef.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' ) {
-    modalWindow.close()
-  }
-})
-
 }
